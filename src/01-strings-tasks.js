@@ -1,9 +1,12 @@
+/* eslint no-use-before-define: 0 */
+/* eslint linebreak-style: ["error", "windows"] */
 /* *******************************************************************************************
  *                                                                                           *
  * Plese read the following tutorial before implementing tasks:                              *
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String   *
  *                                                                                           *
  ******************************************************************************************* */
+
 
 /**
  * Returns the result of concatenation of two strings.
@@ -18,8 +21,9 @@
  *   '',  'bb'  => 'bb'
  */
 function concatenateStrings(value1, value2) {
-  return `${value1}${value2}`;
+  return value1 + value2;
 }
+
 
 /**
  * Returns the length of given string.
@@ -64,8 +68,9 @@ function getStringFromTemplate(firstName, lastName) {
  *   'Hello, Chuck Norris!' => 'Chuck Norris'
  */
 function extractNameFromTemplate(value) {
-  return `${value.split(' ')[1]} ${value.split(' ')[2].slice(0, -1)}`;
+  return value.slice(7, value.length - 1);
 }
+
 
 /**
  * Returns a first char of the given string.
@@ -78,7 +83,8 @@ function extractNameFromTemplate(value) {
  *   'cat'       => 'c'
  */
 function getFirstChar(value) {
-  return value[0];
+  const arr = value.split('');
+  return arr[0];
 }
 
 /**
@@ -139,8 +145,9 @@ function removeFirstOccurrences(str, value) {
  *   '<a>' => 'a'
  */
 function unbracketTag(str) {
-  return str.slice(1, -1);
+  return str.replace(/<|>/g, '');
 }
+
 
 /**
  * Converts all characters of the specified string into the upper case
@@ -199,36 +206,23 @@ function extractEmails(str) {
  *
  */
 function getRectangleString(width, height) {
-  const result = [];
-  for (let i = 0; i < height; i += 1) {
-    for (let j = 0; j < width; j += 1) {
-      if (i === 0) {
-        if (j === 0) {
-          result.push('┌');
-        } else if (j === width - 1) {
-          result.push('┐\n');
-        } else {
-          result.push('─');
-        }
-      } else if (i === height - 1) {
-        if (j === 0) {
-          result.push('└');
-        } else if (j === width - 1) {
-          result.push('┘\n');
-        } else {
-          result.push('─');
-        }
-      } else if (j === 0) {
-        result.push('│');
-      } else if (j === width - 1) {
-        result.push('│\n');
-      } else {
-        result.push(' ');
-      }
-    }
+  let top = '┌┐\n';
+  let bottom = '└┘\n';
+
+  if (width > 2) {
+    top = `┌${repeatString('─', width - 2)}┐\n`;
+    bottom = `└${repeatString('─', width - 2)}┘\n`;
   }
-  return result.join('');
+
+  let center = '';
+
+  if (height > 2) {
+    center = repeatString(`│${repeatString(' ', width - 2)}│\n`, height - 2);
+  }
+
+  return top + center + bottom;
 }
+
 
 /**
  * Encode specified string with ROT13 cipher
@@ -247,9 +241,14 @@ function getRectangleString(width, height) {
  *
  */
 function encodeToRot13(str) {
-  const input = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-  const output = 'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm';
-  return str.replace(/[A-Z]/gi, (c) => output[input.indexOf(c)]);
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ';
+  const newAlphabet = 'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm ';
+  const lastChar = /!|\?/g.exec(str) || '';
+  const strArr = str.split('');
+  for (let i = 0; i < strArr.length; i += 1) {
+    strArr[i] = newAlphabet[alphabet.indexOf(strArr[i])];
+  }
+  return strArr.join('') + lastChar;
 }
 
 /**
@@ -266,8 +265,9 @@ function encodeToRot13(str) {
  *   isString(new String('test')) => true
  */
 function isString(value) {
-  return typeof value === 'string' || value instanceof String;
+  return value instanceof String || typeof value === 'string';
 }
+
 
 /**
  * Returns playid card id.
@@ -294,63 +294,13 @@ function isString(value) {
  *   'K♠' => 51
  */
 function getCardId(value) {
-  const cards = [
-    'A♣',
-    '2♣',
-    '3♣',
-    '4♣',
-    '5♣',
-    '6♣',
-    '7♣',
-    '8♣',
-    '9♣',
-    '10♣',
-    'J♣',
-    'Q♣',
-    'K♣',
-    'A♦',
-    '2♦',
-    '3♦',
-    '4♦',
-    '5♦',
-    '6♦',
-    '7♦',
-    '8♦',
-    '9♦',
-    '10♦',
-    'J♦',
-    'Q♦',
-    'K♦',
-    'A♥',
-    '2♥',
-    '3♥',
-    '4♥',
-    '5♥',
-    '6♥',
-    '7♥',
-    '8♥',
-    '9♥',
-    '10♥',
-    'J♥',
-    'Q♥',
-    'K♥',
-    'A♠',
-    '2♠',
-    '3♠',
-    '4♠',
-    '5♠',
-    '6♠',
-    '7♠',
-    '8♠',
-    '9♠',
-    '10♠',
-    'J♠',
-    'Q♠',
-    'K♠',
-  ];
-
-  return cards.indexOf(value);
+  const cardArr = ['A♣', '2♣', '3♣', '4♣', '5♣', '6♣', '7♣', '8♣', '9♣', '10♣',
+    'J♣', 'Q♣', 'K♣', 'A♦', '2♦', '3♦', '4♦', '5♦', '6♦', '7♦', '8♦', '9♦', '10♦', 'J♦',
+    'Q♦', 'K♦', 'A♥', '2♥', '3♥', '4♥', '5♥', '6♥', '7♥', '8♥', '9♥', '10♥', 'J♥', 'Q♥',
+    'K♥', 'A♠', '2♠', '3♠', '4♠', '5♠', '6♠', '7♠', '8♠', '9♠', '10♠', 'J♠', 'Q♠', 'K♠'];
+  return cardArr.indexOf(value);
 }
+
 
 module.exports = {
   concatenateStrings,
