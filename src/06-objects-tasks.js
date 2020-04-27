@@ -1,3 +1,5 @@
+/* eslint no-use-before-define: 0 */
+/* eslint linebreak-style: ["error", "windows"] */
 /* ************************************************************************************************
  *                                                                                                *
  * Plese read the following tutorial before implementing tasks:                                   *
@@ -5,6 +7,7 @@
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object        *
  *                                                                                                *
  ************************************************************************************************ */
+
 
 /**
  * Returns the rectagle object with width and height parameters and getArea() method
@@ -24,10 +27,11 @@ function Rectangle(width, height) {
     width,
     height,
     getArea() {
-      return width * height;
+      return this.width * this.height;
     },
   };
 }
+
 
 /**
  * Returns the JSON representation of specified object
@@ -43,6 +47,7 @@ function getJSON(obj) {
   return JSON.stringify(obj);
 }
 
+
 /**
  * Returns the object of specified type from JSON representation
  *
@@ -55,15 +60,12 @@ function getJSON(obj) {
  *
  */
 function fromJSON(proto, json) {
-  const result = Object.create(proto);
+  const obj = JSON.parse(json);
+  const values = Object.values(obj);
 
-  const data = JSON.parse(json);
-  Object.keys(data).forEach((i) => {
-    result[i] = data[i];
-  });
-
-  return result;
+  return new proto.constructor(...values);
 }
+
 
 /**
  * Css selectors builder
@@ -120,59 +122,89 @@ function fromJSON(proto, json) {
  */
 
 const cssSelectorBuilder = {
-  result: [],
+  stringify() {
+    return `${this.combineValue || ''}${this.elementValue || ''}${this.idValue || ''}${this.classValue || ''}${this.attrValue || ''}${this.pseudoClassValue || ''}${this.pseudoElementValue || ''}`;
+  },
+
+  orderCheck(obj, prop) {
+    const orderArray = [obj.elementValue, obj.idValue, obj.classValue,
+      obj.attrValue, obj.pseudoClassValue, obj.pseudoElementValue];
+    orderArray.forEach((item, i) => {
+      if (item && i > orderArray.indexOf(prop)) {
+        throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+      }
+    });
+  },
 
   element(value) {
-    this.result.push(value);
-    return this;
+    const obj = {};
+    Object.assign(obj, this);
+    if (obj.elementValue) {
+      throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    } else {
+      obj.elementValue = value;
+    }
+    this.orderCheck(obj, obj.elementValue);
+    return obj;
   },
 
   id(value) {
-    this.result.push(`#${value}`);
-    return this;
+    const obj = {};
+    Object.assign(obj, this);
+    if (obj.idValue) {
+      throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    } else {
+      obj.idValue = `#${value}`;
+    }
+
+    this.orderCheck(obj, obj.idValue);
+    return obj;
   },
 
   class(value) {
-    this.result.push(`.${value}`);
-    return this;
+    const obj = {};
+    Object.assign(obj, this);
+    obj.classValue = `${obj.classValue || ''}.${value}`;
+    this.orderCheck(obj, obj.classValue);
+    return obj;
   },
 
   attr(value) {
-    this.result.push(`[${value}]`);
-    return this;
+    const obj = {};
+    Object.assign(obj, this);
+    obj.attrValue = `${obj.attrValue || ''}[${value}]`;
+    this.orderCheck(obj, obj.attrValue);
+    return obj;
   },
 
   pseudoClass(value) {
-    this.result.push(`:${value}`);
-    return this;
+    const obj = {};
+    Object.assign(obj, this);
+    obj.pseudoClassValue = `${obj.pseudoClassValue || ''}:${value}`;
+    this.orderCheck(obj, obj.pseudoClassValue);
+    return obj;
   },
 
   pseudoElement(value) {
-    this.result.push(`::${value}`);
-    return this;
+    const obj = {};
+    Object.assign(obj, this);
+    if (obj.pseudoElementValue) {
+      throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    } else {
+      obj.pseudoElementValue = `::${value}`;
+    }
+    this.orderCheck(obj, obj.pseudoElementValue);
+    return obj;
   },
 
   combine(selector1, combinator, selector2) {
-    this.result.push(selector1, ` ${combinator} `, selector2);
-    return this;
-  },
-
-  stringify() {
-    const temp = [...this.result];
-    this.result = [];
-    return temp.join('');
+    const obj = {};
+    Object.assign(obj, this);
+    obj.combineValue = `${obj.combineValue || ''}${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+    return obj;
   },
 };
 
-// console.log(
-//   cssSelectorBuilder
-//     .combine(
-//       cssSelectorBuilder.element('p').pseudoClass('focus'),
-//       '>',
-//       cssSelectorBuilder.element('a').attr('href$=".png"')
-//     )
-//     .stringify()
-// );
 
 module.exports = {
   Rectangle,

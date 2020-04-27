@@ -1,3 +1,5 @@
+/* eslint no-use-before-define: 0 */
+/* eslint linebreak-style: ["error", "windows"] */
 /* *********************************************************************************************
  *                                                                                             *
  * Plese read the following tutorial before implementing tasks:                                *
@@ -7,6 +9,7 @@
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures                            *
  *                                                                                             *
  ********************************************************************************************* */
+
 
 /**
  * Returns the functions composition of two specified functions f(x) and g(x).
@@ -26,6 +29,7 @@ function getComposition(f, g) {
   return (x) => f(g(x));
 }
 
+
 /**
  * Returns the math power function with the specified exponent
  *
@@ -43,8 +47,9 @@ function getComposition(f, g) {
  *
  */
 function getPowerFunction(exponent) {
-  return (x) => x ** exponent;
+  return (num) => num ** exponent;
 }
+
 
 /**
  * Returns the polynom function of one argument based on specified coefficients.
@@ -60,20 +65,13 @@ function getPowerFunction(exponent) {
  *   getPolynom()      => null
  */
 function getPolynom(...args) {
-  const arrayLength = args.length;
-  return (x) => {
-    if (arrayLength === 3) {
-      return args[0] * x ** 2 + args[1] * x + args[2];
-    }
-    if (arrayLength === 2) {
-      return args[0] * x + args[1];
-    }
-    if (arrayLength === 1) {
-      return args[0];
-    }
+  if (args.length === 0) {
     return null;
-  };
+  }
+  return (num) => args
+    .reduce((acc, val, index) => acc + val * (num ** (arguments.length - index - 1)), 0);
 }
+
 
 /**
  * Memoizes passed function and returns function
@@ -90,9 +88,23 @@ function getPolynom(...args) {
  *   memoizer() => the same random number  (next run, returns the previous cached result)
  */
 function memoize(func) {
-  const result = func();
-  return () => result;
+  const cache = {};
+  return (...args) => {
+    let inputArgs = args;
+    let output;
+    if (typeof inputArgs[0] === 'object') {
+      inputArgs = JSON.stringify(args);
+    }
+    if (args in cache) {
+      output = cache[args];
+    } else {
+      cache[args] = func.apply(this, args);
+      output = cache[args];
+    }
+    return output;
+  };
 }
+
 
 /**
  * Returns the function trying to call the passed function and if it throws,
@@ -110,17 +122,19 @@ function memoize(func) {
  * retryer() => 2
  */
 function retry(func, attempts) {
-  return () => {
-    for (let i = 0; i <= attempts; i += 1) {
+  return (...args) => {
+    let currentAttempt = 0;
+    while (currentAttempt < attempts) {
       try {
-        return func();
+        return func.apply(args);
       } catch (e) {
-        //  empty
+        currentAttempt += 1;
       }
     }
-    return null;
+    return 'error';
   };
 }
+
 
 /**
  * Returns the logging wrapper for the specified method,
@@ -147,13 +161,14 @@ function retry(func, attempts) {
  */
 function logger(func, logFunc) {
   return (...args) => {
-    const funcTemp = `${func.name}(${JSON.stringify(args).slice(1, -1)})`;
-    logFunc(`${funcTemp} starts`);
-    const result = func(...args);
-    logFunc(`${funcTemp} ends`);
-    return result;
+    const argsStr = args.map((item) => JSON.stringify(item)).join(',');
+    logFunc(`${func.name}(${argsStr}) starts`);
+    const res = func(...args);
+    logFunc(`${func.name}(${argsStr}) ends`);
+    return res;
   };
 }
+
 
 /**
  * Return the function with partial applied arguments
@@ -169,8 +184,9 @@ function logger(func, logFunc) {
  *   partialUsingArguments(fn, 'a','b','c','d')() => 'abcd'
  */
 function partialUsingArguments(fn, ...args1) {
-  return (...args2) => fn(...args1, ...args2);
+  return (...args) => fn(...(args1.concat(args)));
 }
+
 
 /**
  * Returns the id generator function that returns next integer starting
@@ -190,12 +206,13 @@ function partialUsingArguments(fn, ...args1) {
  *   getId10() => 11
  */
 function getIdGeneratorFunction(startFrom) {
-  let counter = startFrom - 1;
+  let cache = startFrom - 1;
   return () => {
-    counter += 1;
-    return counter;
+    cache += 1;
+    return cache;
   };
 }
+
 
 module.exports = {
   getComposition,

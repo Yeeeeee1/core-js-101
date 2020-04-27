@@ -1,3 +1,5 @@
+/* eslint no-use-before-define: 0 */
+/* eslint linebreak-style: ["error", "windows"] */
 /* *******************************************************************************************
  *                                                                                           *
  * Plese read the following tutorial before implementing tasks:                              *
@@ -6,6 +8,7 @@
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math     *
  *                                                                                           *
  ******************************************************************************************* */
+
 
 /**
  * Returns an area of a rectangle given by width and heigth.
@@ -21,6 +24,7 @@
 function getRectangleArea(width, height) {
   return width * height;
 }
+
 
 /**
  * Returns a circumference of circle given by radius.
@@ -69,7 +73,7 @@ function getAverage(value1, value2) {
  *   (-5,0) (10,-10) => 18.027756377319946
  */
 function getDistanceBetweenPoints(x1, y1, x2, y2) {
-  return Math.hypot(x2 - x1, y2 - y1);
+  return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 }
 
 /**
@@ -87,6 +91,7 @@ function getDistanceBetweenPoints(x1, y1, x2, y2) {
 function getLinearEquationRoot(a, b) {
   return -b / a;
 }
+
 
 /**
  * Returns an angle (in radians) between two vectors given by xi and yi,
@@ -107,7 +112,8 @@ function getLinearEquationRoot(a, b) {
  *   (0,1) (1,2)     => 0
  */
 function getAngleBetweenVectors(x1, y1, x2, y2) {
-  return Math.abs(Math.atan2(y2, x2) - Math.atan2(y1, x1));
+  return Math.acos((x1 * x2 + y1 * y2)
+        / (Math.sqrt(x1 ** 2 + y1 ** 2) * Math.sqrt(x2 ** 2 + y2 ** 2)));
 }
 
 /**
@@ -126,6 +132,7 @@ function getLastDigit(value) {
   return value.toString().slice(-1);
 }
 
+
 /**
  * Returns a number by given string representation.
  *
@@ -138,7 +145,7 @@ function getLastDigit(value) {
  * '-525.5'     => -525.5
  */
 function parseNumberFromString(value) {
-  return +value;
+  return Number(value);
 }
 
 /**
@@ -155,7 +162,7 @@ function parseNumberFromString(value) {
  *   1,2,3   => 3.741657386773941
  */
 function getParallelipidedDiagonal(a, b, c) {
-  return Math.sqrt(a * a + b * b + c * c);
+  return Math.sqrt(a ** 2 + b ** 2 + c ** 2);
 }
 
 /**
@@ -176,8 +183,7 @@ function getParallelipidedDiagonal(a, b, c) {
  *   1678, 3  => 2000
  */
 function roundToPowerOfTen(num, pow) {
-  const power = 10 ** pow;
-  return Math.round(num / power) * power;
+  return Math.round(num / (10 ** pow)) * 10 ** pow;
 }
 
 /**
@@ -199,9 +205,9 @@ function roundToPowerOfTen(num, pow) {
  */
 function isPrime(n) {
   for (let i = 2; i < n; i += 1) {
-    if (n % i === 0) return false;
+    if (n % i === 0) { return false; }
   }
-  return n > 1;
+  return true;
 }
 
 /**
@@ -220,10 +226,7 @@ function isPrime(n) {
  *   toNumber(new Number(42), 0) => 42
  */
 function toNumber(value, def) {
-  if (+value) {
-    return value;
-  }
-  return def;
+  return Number(value) || def;
 }
 
 module.exports = {
