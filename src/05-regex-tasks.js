@@ -1,5 +1,3 @@
-/* eslint no-use-before-define: 0 */
-/* eslint linebreak-style: ["error", "windows"] */
 /* *******************************************************************************************
  *                                                                                           *
  * Plese read the following tutorial before implementing tasks:                              *
@@ -9,7 +7,6 @@
  * https://regexr.com                                                                        *
  *                                                                                           *
  ******************************************************************************************* */
-
 
 /**
  * Returns the regexp that matches a GUID string representation
@@ -34,9 +31,8 @@
  * @return {RegExp}
  */
 function getRegexForGuid() {
-  return /^\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\}$/;
+  return /{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/;
 }
-
 
 /**
  * Returns the regexp that matches all the strings from first column
@@ -56,9 +52,8 @@ function getRegexForGuid() {
  *
  */
 function getRegexForPitSpot() {
-  return /p.t/;
+  return /p[a-z|\s]t/;
 }
-
 
 /**
  * Returns the password validator regex.
@@ -81,10 +76,10 @@ function getRegexForPitSpot() {
  *   'Pa55'.match(validator) => false
  */
 function getPasswordValidator(minLength) {
-  const re = new RegExp(`^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-z0-9A-Z]{${minLength},}`);
-  return re;
+  return new RegExp(
+    `^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[0-9a-zA-Z]{${minLength},}$`,
+  );
 }
-
 
 module.exports = {
   getRegexForGuid,

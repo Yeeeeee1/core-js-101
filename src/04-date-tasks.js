@@ -1,5 +1,3 @@
-/* eslint no-use-before-define: 0 */
-/* eslint linebreak-style: ["error", "windows"] */
 /* *******************************************************************************************
  *                                                                                           *
  * Plese read the following tutorial before implementing tasks:                              *
@@ -7,7 +5,6 @@
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date     *
  *                                                                                           *
  ******************************************************************************************* */
-
 
 /**
  * Parses a rfc2822 string date representation into date value
@@ -40,7 +37,6 @@ function parseDataFromIso8601(value) {
   return new Date(value);
 }
 
-
 /**
  * Returns true if specified date is leap year and false otherwise
  * Please find algorithm here: https://en.wikipedia.org/wiki/Leap_year#Algorithm
@@ -56,11 +52,13 @@ function parseDataFromIso8601(value) {
  *    Date(2015,1,1)    => false
  */
 function isLeapYear(date) {
-  return ((date.getFullYear() % 4 === 0)
-    && (date.getFullYear() % 100 !== 0))
-    || (date.getFullYear() % 400 === 0);
-}
+  const year = date.getFullYear();
 
+  if (year % 4) return false;
+  if (year % 100) return true;
+  if (year % 400) return false;
+  return true;
+}
 
 /**
  * Returns the string represention of the timespan between two dates.
@@ -78,30 +76,26 @@ function isLeapYear(date) {
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,15,20,10,453)   => "05:20:10.453"
  */
 function timeSpanToString(startDate, endDate) {
-  const timeBetweenMs = endDate - startDate;
-  let sss = timeBetweenMs % 1000;
-  const ss = ((timeBetweenMs - sss) / (1000)) % 60;
-  const mm = ((timeBetweenMs - sss - ss) / (60 * 1000)) % 60;
-  const HH = ((timeBetweenMs - sss - ss - mm) / (60 * 60 * 1000)) % 60;
-
-  function addZeros(item) {
-    return item < 10 ? `0${Math.floor(item)}` : Math.floor(item);
+  function pad(n, z = 2) {
+    return `00${n}`.slice(-z);
   }
-
-  if (sss < 100) {
-    sss = `00${sss}`;
-  } else if (sss < 10) {
-    sss = `0${sss}`;
-  }
-
-  return `${addZeros(HH)}:${addZeros(mm)}:${addZeros(ss)}.${sss}`;
+  const milliseconds = endDate.valueOf() - startDate.valueOf();
+  const ms = milliseconds % 1000;
+  const seconds = (milliseconds - ms) / 1000;
+  const sec = seconds % 60;
+  const minutes = (seconds - sec) / 60;
+  const min = minutes % 60;
+  const hoursA = (minutes - min) / 60;
+  const hours = hoursA % 24;
+  return `${pad(hours)}:${pad(min)}:${pad(sec)}.${pad(ms, 3)}`;
 }
-
 
 /**
  * Returns the angle (in radians) between the hands of an analog clock
  * for the specified Greenwich time.
  * If you have problem with solution please read: https://en.wikipedia.org/wiki/Clock_angle_problem
+ *
+ * SMALL TIP: convert to radians just once, before return in order to not lost precision
  *
  * @param {date} date
  * @return {number}
@@ -113,20 +107,21 @@ function timeSpanToString(startDate, endDate) {
  *    Date.UTC(2016,3,5,21, 0) => Math.PI/2
  */
 function angleBetweenClockHands(date) {
-  const hour = date.getUTCHours() > 12 ? date.getUTCHours() % 12 : date.getUTCHours();
-  const minute = date.getUTCMinutes();
+  const min = date.getUTCMinutes();
+  let hour = date.getUTCHours();
 
-  const angleMinute = minute * 6;
-  const angleHour = hour * 30 + angleMinute / 12;
-
-  let angle = Math.abs(angleHour - angleMinute) * (Math.PI / 180);
-
-  if (angle > Math.PI) {
-    angle -= Math.PI;
+  if (hour > 12) {
+    hour -= 12;
   }
-  return angle;
-}
 
+  let degree = Math.abs(hour * 60 - min * 11);
+
+  if (degree > 360) {
+    degree -= 360;
+  }
+
+  return (0.5 * degree * Math.PI) / 180;
+}
 
 module.exports = {
   parseDataFromRfc2822,
