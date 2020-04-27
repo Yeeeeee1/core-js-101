@@ -1,11 +1,9 @@
-/* eslint linebreak-style: ["error", "windows"] */
 /* ************************************************************************************************
  *                                                                                                *
  * Plese read the following tutorial before implementing tasks:                                   *
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise       *
  *                                                                                                *
  ************************************************************************************************ */
-
 
 /**
  * Return Promise object that is resolved with string value === 'Hooray!!! She said "Yes"!',
@@ -40,7 +38,6 @@ function willYouMarryMe(isPositiveAnswer) {
   });
 }
 
-
 /**
  * Return Promise object that should be resolved with array containing plain values.
  * Function receive an array of Promise objects.
@@ -57,13 +54,7 @@ function willYouMarryMe(isPositiveAnswer) {
  *
  */
 function processAllPromises(array) {
-  return new Promise((resolve) => {
-    const res = [];
-    for (let i = 0; i < array.length; i += 1) {
-      array[i].then((ans) => res.push(ans));
-    }
-    resolve(res);
-  });
+  return Promise.all(array);
 }
 
 /**
@@ -107,13 +98,14 @@ function getFastestPromise(array) {
  *
  */
 function chainPromises(array, action) {
-  return new Promise((resolve) => {
-    const res = [];
-    for (let i = 0; i < array.length; i += 1) {
-      array[i].then((ans) => res.push(ans));
-    }
-    resolve(res);
-  }).then((res) => res.reduce(action));
+  const result = [];
+
+  return array.map((item) => Promise.resolve(item)
+    .then((value) => {
+      result.push(value);
+    })
+    .then(() => result.reduce(action))
+    .catch(() => {}))[0];
 }
 
 module.exports = {
